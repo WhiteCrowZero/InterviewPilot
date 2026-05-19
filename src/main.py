@@ -17,7 +17,10 @@ def create_app() -> FastAPI:
         version=settings.app_version,
         lifespan=lifespan,
     )
-    app.include_router(api_router, prefix=settings.api_v1_prefix)
+    app.include_router(
+        api_router,
+        prefix=f"{settings.api_prefix}/{settings.api_version}"
+    )
     return app
 
 

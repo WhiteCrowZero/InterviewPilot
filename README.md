@@ -22,9 +22,3 @@ uv run uvicorn src.main:app --reload
 访问地址：
 
 - `http://127.0.0.1:8000/api/v1/health`
-
-## 后续阶段建议
-
-1. 阶段 1：补全统一响应、异常处理、中间件、日志。
-2. 阶段 2：接入 SQLAlchemy、用户表、JWT 鉴权。
-3. 阶段 3：实现题库、错题本、笔记核心业务。

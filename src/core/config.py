@@ -4,7 +4,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     app_name: str = "InterviewPilot"
     app_version: str = "0.1.0"
-    api_v1_prefix: str = "/api/v1"
+    api_prefix: str = "/api"
+    api_version: str = "v1"
     debug: bool = True
     secret_key: str = "change-me"
     database_url: str = "sqlite+aiosqlite:///./interview_pilot.db"
