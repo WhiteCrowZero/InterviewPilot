@@ -2,8 +2,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from src.api.v1.router import api_router
-from src.core.config import settings
+from interview_pilot.api.v1.router import api_router
+from interview_pilot.core.config import settings
 
 
 @asynccontextmanager

@@ -19,3 +19,15 @@ class QuestionRead(BaseModel):
     tags: list[str]
     created_at: datetime
     updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class QuestionCategoryReportRow(BaseModel):
+    category: str
+    question_count: int
+    avg_difficulty: float
+    avg_answer_length: float
+    hard_question_count: int
+    latest_created_at: datetime
+    volume_rank: int

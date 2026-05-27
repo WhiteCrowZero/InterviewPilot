@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from src.api.v1.endpoints import auth, health, notes, questions, reviews, users
+from interview_pilot.api.v1.endpoints import auth, health, notes, questions, reviews, users
 
 api_router = APIRouter()
 api_router.include_router(health.router, prefix="/health", tags=["health"])

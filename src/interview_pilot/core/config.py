@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -8,7 +10,7 @@ class Settings(BaseSettings):
     api_version: str = "v1"
     debug: bool = True
     secret_key: str = "change-me"
-    database_url: str = "sqlite+aiosqlite:///./interview_pilot.db"
+    database_url: str = "sqlite+aiosqlite:///./temps/interview_pilot.db"
     redis_url: str = "redis://localhost:6379/0"
 
     model_config = SettingsConfigDict(
@@ -18,4 +20,8 @@ class Settings(BaseSettings):
     )
 
 
-settings = Settings()
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
+
+settings = get_settings()

@@ -16,7 +16,7 @@
 
 ```bash
 uv sync
-uv run uvicorn src.main:app --reload
+uv run uvicorn interview_pilot:main:app --reload
 ```
 
 访问地址：

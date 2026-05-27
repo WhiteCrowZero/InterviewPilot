@@ -1,9 +1,8 @@
-from fastapi.testclient import TestClient
-from src.main import app
+from tests.conftest import create_test_client
 
 
 def test_health_check() -> None:
-    client = TestClient(app)
+    client = create_test_client()
     response = client.get("/api/v1/health")
 
     assert response.status_code == 200
