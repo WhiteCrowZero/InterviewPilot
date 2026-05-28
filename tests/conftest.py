@@ -1,4 +1,5 @@
 import asyncio
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -10,6 +11,7 @@ from interview_pilot.main import app
 
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///./temps/test_interview_pilot.db"
+Path("temps").mkdir(exist_ok=True)
 
 
 async def _reset_database() -> None:

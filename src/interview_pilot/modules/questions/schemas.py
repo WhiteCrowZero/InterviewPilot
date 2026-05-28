@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from pydantic import BaseModel, Field
 
@@ -10,8 +12,17 @@ class QuestionCreate(BaseModel):
     tags: list[str] = Field(default_factory=list)
 
 
+class QuestionUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=200)
+    answer: str | None = Field(default=None, min_length=1)
+    category: str | None = None
+    difficulty: int | None = Field(default=None, ge=1, le=5)
+    tags: list[str] | None = None
+
+
 class QuestionRead(BaseModel):
     id: int
+    user_id: int
     title: str
     answer: str
     category: str

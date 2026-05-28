@@ -85,13 +85,6 @@ debugging step.
 from __future__ import annotations
 ```
 
-### WSL and Windows
-
-The development environment is in WSL and is isolated from the actual Windows code environment.
-
-- Current directory: `~/projects/InterviewPilot/`
-- Windows directory: `/mnt/d/ComputerScience/Python/temp/InterviewPilot/`
-
 ---
 
 ## 6. Project Structure
@@ -126,16 +119,18 @@ InterviewPilot/
 │               ├── repository.py        # 数据库SQL操作
 │               └── service.py           # 业务逻辑
 ├── tests/
-│   ├── conftest.py                      # 测试配置：测试数据库、依赖覆盖、测试客户端
-│   └── test_xxx.py                      # xxx 模块测试
+│   ├── conftest.py                      # 测试配置
+│   ├── unit/                            # 单元测试
+│   │   └── test_xxx.py                  # xxx 模块测试
+│   └── integration/                     # 集成测试
 ├── alembic/
-│   ├── env.py                           # Alembic 配置：读取 Base.metadata，生成/执行迁移
+│   ├── env.py                           # Alembic 配置
 │   └── versions/
 ├── deploy/
 │   ├── Dockerfile                       # 项目镜像构建
-│   └── docker-compose.yml               # 本地部署：API、数据库、Redis 等
-├── pyproject.toml                       # 项目依赖、ruff/pytest 等工具配置
+│   └── docker-compose.yml               # 本地部署
+├── pyproject.toml                       # 项目依赖、工具配置
 ├── alembic.ini                          # Alembic 主配置文件
 ├── .env.example                         # 环境变量示例
-└── README.md                            # 项目介绍、启动方式、接口说明、架构说明
+└── README.md                            # 项目介绍
 ```
