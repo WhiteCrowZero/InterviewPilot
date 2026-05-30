@@ -1,1 +1,0 @@
-"""Questions domain business logic."""
