@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Annotated, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Annotated
 
 import jwt
 from fastapi import Depends, HTTPException
@@ -8,6 +9,8 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
+from interview_pilot.core.cache import CacheBackend, get_cache_backend
+from interview_pilot.core.message_queue import MessageQueue, get_message_queue
 from interview_pilot.core.security import decode_access_token
 from interview_pilot.db.session import get_db_session
 from interview_pilot.modules.auth import repository as auth_repository
@@ -23,6 +26,18 @@ async def get_session() -> AsyncIterator[AsyncSession]:
 
 DbSessionDep = Annotated[AsyncSession, Depends(get_session)]
 TokenDep = Annotated[str, Depends(oauth2_scheme)]
+
+
+def get_cache() -> CacheBackend:
+    return get_cache_backend()
+
+
+def get_event_queue() -> MessageQueue:
+    return get_message_queue()
+
+
+CacheDep = Annotated[CacheBackend, Depends(get_cache)]
+MessageQueueDep = Annotated[MessageQueue, Depends(get_event_queue)]
 
 
 async def get_current_user(token: TokenDep, session: DbSessionDep) -> User:

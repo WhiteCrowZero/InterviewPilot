@@ -1,7 +1,17 @@
 from __future__ import annotations
 
 from datetime import datetime
+
 from pydantic import BaseModel, Field
+
+
+class QuestionListParams(BaseModel):
+    page: int = Field(default=1, ge=1)
+    size: int = Field(default=20, ge=1, le=100)
+    category: str | None = None
+    difficulty_min: int | None = Field(default=None, ge=1, le=5)
+    difficulty_max: int | None = Field(default=None, ge=1, le=5)
+    keyword: str | None = None
 
 
 class QuestionCreate(BaseModel):
@@ -32,6 +42,14 @@ class QuestionRead(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class QuestionPage(BaseModel):
+    items: list[QuestionRead]
+    total: int
+    page: int
+    size: int
+    pages: int
 
 
 class QuestionCategoryReportRow(BaseModel):

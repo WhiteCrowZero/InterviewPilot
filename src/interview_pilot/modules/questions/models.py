@@ -1,9 +1,15 @@
-from datetime import datetime
+from __future__ import annotations
 
-from sqlalchemy import DateTime, Integer, JSON, String, Text, func, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, Relationship
+from datetime import datetime
+from typing import TYPE_CHECKING
+
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from interview_pilot.db.base import Base
+
+if TYPE_CHECKING:
+    from interview_pilot.db.models import Note, Review
 
 
 class Question(Base):
@@ -20,6 +26,14 @@ class Question(Base):
     category: Mapped[str] = mapped_column(String(100), nullable=False, default="general")
     difficulty: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     tags: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    notes: Mapped[list[Note]] = relationship(
+        back_populates="question",
+        cascade="all, delete-orphan",
+    )
+    reviews: Mapped[list[Review]] = relationship(
+        back_populates="question",
+        cascade="all, delete-orphan",
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

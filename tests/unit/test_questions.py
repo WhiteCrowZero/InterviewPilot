@@ -5,7 +5,11 @@ from fastapi.testclient import TestClient
 from tests.conftest import create_test_client
 
 
-def auth_headers(client: TestClient, username: str = "alice", email: str = "alice@example.com") -> dict[str, str]:
+def auth_headers(
+    client: TestClient,
+    username: str = "alice",
+    email: str = "alice@example.com",
+) -> dict[str, str]:
     password = "strong-password"
     register_response = client.post(
         "/api/v1/auth/register",
@@ -46,9 +50,10 @@ def test_create_and_list_questions() -> None:
 
     assert list_response.status_code == 200
     listed = list_response.json()
-    assert len(listed) == 1
-    assert listed[0]["id"] == created["id"]
-    assert listed[0]["title"] == payload["title"]
+    assert listed["total"] == 1
+    assert listed["page"] == 1
+    assert listed["items"][0]["id"] == created["id"]
+    assert listed["items"][0]["title"] == payload["title"]
 
 
 def test_get_update_and_delete_question() -> None:
@@ -131,7 +136,7 @@ def test_user_can_only_access_own_questions() -> None:
 
     list_response = client.get("/api/v1/questions", headers=bob_headers)
     assert list_response.status_code == 200
-    assert list_response.json() == []
+    assert list_response.json()["items"] == []
 
     detail_response = client.get(f"/api/v1/questions/{question_id}", headers=bob_headers)
     assert detail_response.status_code == 404
@@ -141,6 +146,57 @@ def test_user_can_only_access_own_questions() -> None:
 
     owner_detail_response = client.get(f"/api/v1/questions/{question_id}", headers=alice_headers)
     assert owner_detail_response.status_code == 200
+
+
+def test_list_questions_supports_pagination_and_filters() -> None:
+    client = create_test_client()
+    headers = auth_headers(client)
+
+    payloads = [
+        {
+            "title": "Database transaction",
+            "answer": "Atomic database operation.",
+            "category": "database",
+            "difficulty": 2,
+            "tags": ["sql"],
+        },
+        {
+            "title": "Database index",
+            "answer": "Speeds up database lookups.",
+            "category": "database",
+            "difficulty": 4,
+            "tags": ["sql"],
+        },
+        {
+            "title": "FastAPI dependency",
+            "answer": "Injects request dependencies.",
+            "category": "backend",
+            "difficulty": 3,
+            "tags": ["fastapi"],
+        },
+    ]
+    for payload in payloads:
+        assert client.post("/api/v1/questions", json=payload, headers=headers).status_code == 201
+
+    response = client.get(
+        "/api/v1/questions",
+        params={"category": "database", "difficulty_min": 3, "page": 1, "size": 1},
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["total"] == 1
+    assert body["pages"] == 1
+    assert body["items"][0]["title"] == "Database index"
+
+    keyword_response = client.get(
+        "/api/v1/questions",
+        params={"keyword": "dependency"},
+        headers=headers,
+    )
+    assert keyword_response.status_code == 200
+    assert keyword_response.json()["items"][0]["category"] == "backend"
 
 
 def test_category_summary_report_uses_raw_sql() -> None:

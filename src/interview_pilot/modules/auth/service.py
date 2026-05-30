@@ -44,9 +44,9 @@ def ensure_user_can_login(user: User) -> None:
 
 
 async def authenticate_user(
-        identity: str,
-        password: str,
-        session: AsyncSession,
+    identity: str,
+    password: str,
+    session: AsyncSession,
 ) -> User | None:
     user = await repository.get_user_by_username_or_email(identity.strip(), session)
 

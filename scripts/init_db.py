@@ -13,13 +13,12 @@ SRC_DIR = ROOT_DIR / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
+import interview_pilot.db.models  # noqa: E402,F401
 from interview_pilot.core.config import settings  # noqa: E402
 from interview_pilot.core.security import hash_password  # noqa: E402
 from interview_pilot.db.base import Base  # noqa: E402
-import interview_pilot.db.models  # noqa: E402,F401
 from interview_pilot.modules.auth.models import User  # noqa: E402
 from interview_pilot.modules.questions.models import Question  # noqa: E402
-
 
 SEED_USERS = [
     {

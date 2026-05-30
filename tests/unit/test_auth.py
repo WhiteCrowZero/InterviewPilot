@@ -1,6 +1,5 @@
 from tests.conftest import create_test_client
 
-
 REGISTER_PAYLOAD = {
     "username": "alice",
     "email": "alice@example.com",

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-from sqlalchemy import select, text
+from sqlalchemy import func, or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from interview_pilot.modules.questions.models import Question
 from interview_pilot.modules.questions.schemas import (
     QuestionCategoryReportRow,
     QuestionCreate,
+    QuestionListParams,
+    QuestionPage,
     QuestionRead,
     QuestionUpdate,
 )
@@ -31,15 +33,49 @@ async def create_question(
     return QuestionRead.model_validate(question)
 
 
-async def list_questions(user_id: int, session: AsyncSession) -> list[QuestionRead]:
+async def list_questions(
+    user_id: int,
+    params: QuestionListParams,
+    session: AsyncSession,
+) -> QuestionPage:
+    conditions = [Question.user_id == user_id]
+    if params.category:
+        conditions.append(Question.category == params.category)
+    if params.difficulty_min is not None:
+        conditions.append(Question.difficulty >= params.difficulty_min)
+    if params.difficulty_max is not None:
+        conditions.append(Question.difficulty <= params.difficulty_max)
+    if params.keyword:
+        keyword = f"%{params.keyword}%"
+        conditions.append(or_(Question.title.ilike(keyword), Question.answer.ilike(keyword)))
+
+    total_result = await session.execute(
+        select(func.count()).select_from(Question).where(*conditions)
+    )
+    total = total_result.scalar_one()
+    offset = (params.page - 1) * params.size
     result = await session.execute(
-        select(Question).where(Question.user_id == user_id).order_by(Question.id)
+        select(Question)
+        .where(*conditions)
+        .order_by(Question.id.desc())
+        .offset(offset)
+        .limit(params.size)
     )
     questions = result.scalars().all()
-    return [QuestionRead.model_validate(question) for question in questions]
+    return QuestionPage(
+        items=[QuestionRead.model_validate(question) for question in questions],
+        total=total,
+        page=params.page,
+        size=params.size,
+        pages=(total + params.size - 1) // params.size,
+    )
 
 
-async def get_question(question_id: int, user_id: int, session: AsyncSession) -> QuestionRead | None:
+async def get_question(
+    question_id: int,
+    user_id: int,
+    session: AsyncSession,
+) -> QuestionRead | None:
     result = await session.execute(
         select(Question).where(Question.id == question_id, Question.user_id == user_id)
     )
@@ -84,7 +120,10 @@ async def delete_question(question_id: int, user_id: int, session: AsyncSession)
     return True
 
 
-async def get_category_report(user_id: int, session: AsyncSession) -> list[QuestionCategoryReportRow]:
+async def get_category_report(
+    user_id: int,
+    session: AsyncSession,
+) -> list[QuestionCategoryReportRow]:
     report_sql = text(
         """
         WITH normalized AS (SELECT category,
